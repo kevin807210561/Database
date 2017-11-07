@@ -15,6 +15,7 @@ public class DormAssignment {
         dormAssignment.ex1_3();
         dormAssignment.ex1_4();
         dormAssignment.ex1_5();
+        dormAssignment.ex1_6();
     }
 
     public void ex1_2() {
@@ -109,9 +110,9 @@ public class DormAssignment {
         connectDB();
         try {
             long start = GregorianCalendar.getInstance().getTimeInMillis();
-            stmt.execute("SELECT ss.department " +
+            ResultSet rs = stmt.executeQuery("SELECT DISTINCT ss.department " +
                     "FROM student ss " +
-                    "WHERE ss.dbid IN (SELECT s.dbid FROM student s WHERE s.name='王小星');");
+                    "WHERE ss.dbid IN (SELECT DISTINCT s.dbid FROM student s WHERE s.name='王小星');");
             long end = GregorianCalendar.getInstance().getTimeInMillis();
             System.out.println("ex1_4 took " + (end - start) + "ms.");
         } catch (SQLException e) {
@@ -137,9 +138,16 @@ public class DormAssignment {
         connectDB();
         try {
             long start = GregorianCalendar.getInstance().getTimeInMillis();
-            stmt.execute("UPDATE student SET dbid=(SELECT DISTINCT dbid FROM student WHERE department='ruan') WHERE student.department='软件学院' AND student.sex=TRUE;");
+            ResultSet rs1 = stmt.executeQuery("SELECT DISTINCT dbid FROM student WHERE department='软件学院' AND sex=TRUE ;");
+            rs1.next();
+            String dbid1 = rs1.getString("dbid");
+            ResultSet rs2 = stmt.executeQuery("SELECT DISTINCT dbid FROM student WHERE department='软件学院' AND sex=FALSE ;");
+            rs2.next();
+            String dbid2 = rs2.getString("dbid");
+            stmt.execute("UPDATE student SET dbid='" + dbid2 + "' WHERE department='软件学院' AND sex=TRUE;");
+            stmt.execute("UPDATE student SET dbid='" + dbid1 + "' WHERE department='软件学院' AND sex=FALSE;");
             long end = GregorianCalendar.getInstance().getTimeInMillis();
-            System.out.println("ex1_2 took " + (end - start) + "ms.");
+            System.out.println("ex1_6 took " + (end - start) + "ms.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
